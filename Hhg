@@ -1,0 +1,91 @@
+
+-- Random Item Spawner UI
+-- LocalScript ใน StarterPlayerScripts
+
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local player = Players.LocalPlayer
+local event = ReplicatedStorage:WaitForChild("AdminSpawnEvent")
+
+local gui = Instance.new("ScreenGui")
+gui.Name = "RandomItemUI"
+gui.ResetOnSpawn = false
+gui.Parent = player:WaitForChild("PlayerGui")
+
+local toggle = Instance.new("TextButton")
+toggle.Size = UDim2.fromOffset(120, 42)
+toggle.Position = UDim2.new(0, 12, 0.4, 0)
+toggle.Text = "เปิดเมนู"
+toggle.Parent = gui
+
+local frame = Instance.new("Frame")
+frame.Size = UDim2.fromOffset(280, 180)
+frame.Position = UDim2.new(0.5, -140, 0.5, -90)
+frame.BackgroundColor3 = Color3.fromRGB(35, 35, 45)
+frame.Visible = false
+frame.Parent = gui
+
+local title = Instance.new("TextLabel")
+title.Size = UDim2.new(1, -80, 0, 40)
+title.Text = "RANDOM ITEM"
+title.TextScaled = true
+title.Parent = frame
+
+local close = Instance.new("TextButton")
+close.Size = UDim2.fromOffset(38, 35)
+close.Position = UDim2.new(1, -42, 0, 3)
+close.Text = "X"
+close.Parent = frame
+
+local minimize = Instance.new("TextButton")
+minimize.Size = UDim2.fromOffset(38, 35)
+minimize.Position = UDim2.new(1, -82, 0, 3)
+minimize.Text = "—"
+minimize.Parent = frame
+
+local randomButton = Instance.new("TextButton")
+randomButton.Size = UDim2.new(1, -24, 0, 48)
+randomButton.Position = UDim2.fromOffset(12, 55)
+randomButton.Text = "🎲 สุ่มไอเทม"
+randomButton.TextScaled = true
+randomButton.Parent = frame
+
+local status = Instance.new("TextLabel")
+status.Size = UDim2.new(1, -20, 0, 50)
+status.Position = UDim2.fromOffset(10, 110)
+status.Text = "พร้อมใช้งาน"
+status.TextScaled = true
+status.Parent = frame
+
+local minimized = false
+
+toggle.Activated:Connect(function()
+    frame.Visible = not frame.Visible
+    toggle.Text = frame.Visible and "ซ่อนเมนู" or "เปิดเมนู"
+end)
+
+close.Activated:Connect(function()
+    frame.Visible = false
+    toggle.Text = "เปิดเมนู"
+end)
+
+minimize.Activated:Connect(function()
+    minimized = not minimized
+    randomButton.Visible = not minimized
+    status.Visible = not minimized
+    frame.Size = minimized
+        and UDim2.fromOffset(280, 42)
+        or UDim2.fromOffset(280, 180)
+    minimize.Text = minimized and "+" or "—"
+end)
+
+randomButton.Activated:Connect(function()
+    -- ขอให้เซิร์ฟเวอร์สุ่มจากรายการที่เกมอนุญาต
+    event:FireServer("RandomSpawn")
+    status.Text = "ส่งคำขอสุ่มแล้ว"
+end)
+
+event.OnClientEvent:Connect(function(message)
+    status.Text = tostring(message)
+end)
